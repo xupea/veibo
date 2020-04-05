@@ -1,4 +1,7 @@
-# weibo
+# veibo
+学习用的 vue 版本 weibo
+
+![weibo](https://github.com/xupea/images/blob/master/weibo-vue.gif?raw=true)
 
 ## Project setup
 ```
