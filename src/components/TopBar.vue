@@ -192,6 +192,10 @@ export default {
       }
     },
     getTabGroup: function() {
+      // this.$http.get("api/config/list").then((e) => {
+      //   console.log(e)
+      // });
+
       if (mockData.channel && mockData.channel.length) {
         this.tabs = mockData.channel.map(channel => ({
           children: [formatChannel(channel)]
@@ -269,20 +273,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-@font-face {
-  font-family: litefont;
-  src: url(https://h5.sinaimg.cn/m/weibo-lite/fonts/iconfont.00fda3c7.eot);
-  src: url(https://h5.sinaimg.cn/m/weibo-lite/fonts/iconfont.00fda3c7.eot#iefix)
-      format("embedded-opentype"),
-    url(https://h5.sinaimg.cn/m/weibo-lite/fonts/iconfont.78eb594e.ttf)
-      format("truetype"),
-    url(https://h5.sinaimg.cn/m/weibo-lite/fonts/iconfont.53475cc3.woff)
-      format("woff"),
-    url(https://h5.sinaimg.cn/m/weibo-lite/img/iconfont.72a9f840.svg#icomoon)
-      format("svg");
-  font-weight: 400;
-  font-style: normal;
-}
 
 .lite-iconf-releas {
   font-family: litefont;
@@ -301,6 +291,24 @@ export default {
 }
 
 .lite-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+  background-color: #fafafa;
+  color: #262626;
+  border-top-width: 0;
+  border-right-width: 0;
+  border-bottom-width: 1px;
+  border-left-width: 0;
+  border-color: #e6e6e6;
+  border-style: solid;
+  font-size: 1rem;
+  z-index: 995;
+
   &.main-top {
     height: 5.25rem;
 
@@ -349,19 +357,6 @@ export default {
       right: 2.75rem;
     }
   }
-
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  box-sizing: border-box;
-  background-color: #fafafa;
-  color: #262626;
-  border-bottom-width: 1px;
-  border-color: #e6e6e6;
-  border-style: solid;
-  font-size: 1rem;
-  z-index: 995;
 }
 
 .icon-logo-qq,

@@ -21,7 +21,7 @@
       </template>
       <span class="main-link" v-if="showText">{{ status }}</span>
     </div>
-    <div class="pannelwrap">1000</div>
+    <slot></slot>
   </div>
 </template>
 
@@ -174,7 +174,4 @@ export default {
 </script>
 
 <style lang="less">
-.pannelwrap {
-  height: 500px;
-}
 </style>
