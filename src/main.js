@@ -5,7 +5,7 @@ import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
 
-axios.defaults.baseURL = 'https://m.weibo.cn/'
+axios.defaults.baseURL = 'http://180.76.51.7'
 
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;

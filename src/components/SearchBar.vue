@@ -7,18 +7,21 @@
     <aside>
       <label class="m-search">
         <i class="m-font m-font-search"></i>
-        <div class="m-text-cut">大家都在搜：英国5G基站遭纵火</div>
+        <div class="m-text-cut">{{this.getHotword}}</div>
       </label>
     </aside>
   </a>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data: function() {
     return {};
   },
   computed: {
+    ...mapGetters(["hotword"]),
     getHotword: function() {
       return this.hotword.length
         ? "大家都在搜：".concat(this.hotword)

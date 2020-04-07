@@ -52,72 +52,7 @@
 
 <script>
 import searchBar from "@/components/SearchBar.vue";
-
-const mockData = {
-  groups: [],
-  channel: [
-    { gid: "102803", name: "\u70ed\u95e8" },
-    {
-      gid: "102803_ctg1_8999_-_ctg1_8999_home",
-      name: "\u699c\u5355",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_600059_-_ctg1_600059",
-      name: "\u6218\u75ab\u60c5",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_7978_-_ctg1_7978",
-      name: "\u65b0\u9c9c\u4e8b",
-      type: "trend"
-    },
-    { gid: "102803_2222", name: "\u540c\u57ce", type: "trend" },
-    {
-      gid: "102803_ctg1_1770_-_ctg1_1770",
-      name: "\u70ed\u70b9",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_2088_-_ctg1_2088",
-      name: "\u79d1\u6280",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_4288_-_ctg1_4288",
-      name: "\u660e\u661f",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_3288_-_ctg1_3288",
-      name: "\u7535\u5f71",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_5288_-_ctg1_5288",
-      name: "\u97f3\u4e50",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_5088_-_ctg1_5088",
-      name: "\u6570\u7801",
-      type: "trend"
-    },
-    {
-      gid: "102803_ctg1_5188_-_ctg1_5188",
-      name: "\u6c7d\u8f66",
-      type: "trend"
-    },
-    { gid: "102803_ctg1_4888_-_ctg1_4888", name: "\u6e38\u620f", type: "trend" }
-  ],
-  hot: {
-    ok: 1,
-    hotWord:
-      "#\u8fd4\u4eac\u7559\u5b66\u751f\u4e24\u6b21\u51fa\u73b0\u75c7\u72b6\u672a\u62a5\u544a#",
-    scheme:
-      "https://weibo.cn/appurl?scheme=sinaweibo%3A%2F%2Fsearchall%3Fq%3D%23%E8%BF%94%E4%BA%AC%E7%95%99%E5%AD%A6%E7%94%9F%E4%B8%A4%E6%AC%A1%E5%87%BA%E7%8E%B0%E7%97%87%E7%8A%B6%E6%9C%AA%E6%8A%A5%E5%91%8A%23"
-  }
-};
+import { mapActions } from "vuex";
 
 const tabsData = null;
 
@@ -153,6 +88,7 @@ export default {
       tabs: []
     };
   },
+  props: ["curGroup"],
   created: function() {
     // 获取 tabs
     this.initTab();
@@ -174,6 +110,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["updateHotword"]),
     initTab: function() {
       if (tabsData) {
         this.tabs = tabsData;
@@ -192,17 +129,26 @@ export default {
       }
     },
     getTabGroup: function() {
-      // this.$http.get("api/config/list").then((e) => {
-      //   console.log(e)
-      // });
+      this.$http.get("api/config/list").then(e => {
+        if (e.data && e.data.ok > 0) {
+          const { data } = e.data;
+          const { hot } = data;
 
-      if (mockData.channel && mockData.channel.length) {
-        this.tabs = mockData.channel.map(channel => ({
-          children: [formatChannel(channel)]
-        }));
-      }
+          if (hot && hot.hotWord) {
+            this.updateHotword(hot.hotWord);
+          }
 
-      this.initCurTab();
+          // this.$store.dispatch("updateLoggedin", false);
+
+          if (data.channel && data.channel.length) {
+            this.tabs = data.channel.map(channel => ({
+              children: [formatChannel(channel)]
+            }));
+
+            this.initCurTab();
+          }
+        }
+      });
     },
     initCurTab: function() {
       // 如果 localStorage 里面已经存在 选中的 tab
@@ -217,8 +163,9 @@ export default {
     },
     setCurTab: function(tab) {
       // 保存 tab 到 localStorage
+      // TODO
       this.curTab = tab;
-      // this.$emit("update:curGroup", tab);
+      this.$emit("update:curGroup", tab);
       this.scrollToCurTab(tab);
     },
     clickTabGroup: function(tab) {
@@ -273,7 +220,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-
 .lite-iconf-releas {
   font-family: litefont;
   font-size: 1.75rem;

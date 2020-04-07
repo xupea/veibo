@@ -1,6 +1,10 @@
 <template>
   <div class="main-wrap">
-    <top-bar v-on:update:curGroup="cur_group = $event" v-on:update:cur-group="cur_group = $event" />
+    <top-bar
+      v-on:update:curGroup="cur_group = $event"
+      v-on:update:cur-group="cur_group = $event"
+      v-on:changeGroup="switch_groups"
+    />
     <mv-loadmore ref="loadmore" :top-method="pull_refresh">
       <div ref="cont" class="pannelwrap">
         <empty />
@@ -61,7 +65,83 @@ export default {
     };
   },
   methods: {
-    init_first_data: function() {},
+    switch_groups: function() {
+      // console.log('tab changd', this.cur_group)
+      this.is_refresh = false;
+      this.no_data.flag = false;
+      this.net_error.flag = false;
+      this.re_do = false;
+      this.list_all = [];
+      this.list_cur = [];
+      this.padding_top = 0;
+      this.padding_bottom = 0;
+      this.last_scrolltop = 0;
+
+      var t = document.scrollingElement || document.body;
+      t.scrollTop = 0;
+
+      window.onscroll = null;
+
+      // this.clear_storage();
+      this.init_first_data();
+    },
+
+    init_first_data: function() {
+      if (this.cur_group) {
+        const { api } = this.cur_group;
+        const url = api.indexOf("?") > 0 ? api : "".concat(api, "?");
+
+        if (!this.is_request) {
+          this.is_request = true;
+
+          this.$http
+            .get(url, {
+              timeout: 3000
+            })
+            .then(res => {
+              if (res.data && res.data.ok) {
+                const { data } = res.data;
+                if (data.cards || (data.statuses && data.statuses.length > 0)) {
+                  if (data.cards && data.cards[0].card_type === 22) {
+                    this.no_data.flag = true;
+                  } else {
+                    let { statuses } = data;
+                    const { cardlistInfo, page, trends } = data;
+                    const { max_id } = statuses;
+                    this.max_id = max_id;
+                    this.since_id = cardlistInfo ? cardlistInfo.since_id : "";
+                    
+                    if (page) {
+                      this.page = page;
+                    } else if (cardlistInfo) {
+                      this.page = cardlistInfo.page;
+                    }
+
+                    // this.change_data(data);
+
+                    if (trends && trends[0]) {
+                      statuses = trends[0]["feeds"]
+                        ? trends[0]["feeds"].concat(statuses)
+                        : trends.concat(statuses);
+                    }
+
+                    this.list_cur = statuses;
+                  }
+                }
+              } else {
+                this.net_error.flag = true;
+                this.net_error.msg = res.data.msg || res.net_error.msg;
+              }
+            })
+            .catch(() => {
+              this.is_request = false;
+              this.$emit("mvLoadEnd");
+              this.net_error.flag = true;
+              this.net_error.msg = "网络异常，稍后请刷新重试~";
+            });
+        }
+      }
+    },
 
     pull_refresh: function() {
       var t = document.scrollingElement || document.body;
