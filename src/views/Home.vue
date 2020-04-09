@@ -4,10 +4,27 @@
       v-on:update:curGroup="cur_group = $event"
       v-on:update:cur-group="cur_group = $event"
       v-on:changeGroup="switch_groups"
+      v-bind:curGroup="cur_group"
     />
     <mv-loadmore ref="loadmore" :top-method="pull_refresh">
-      <div ref="cont" class="pannelwrap">
-        <empty />
+      <div
+        ref="cont"
+        class="pannelwrap"
+        v-bind:style="{
+          paddingTop: to_rem(padding_top),
+          paddingBottom: to_rem(padding_bottom)
+        }"
+      >
+        <div
+          v-for="(item, index) in list_cur"
+          v-bind:key="item.id || (item.mblog ? item.mblog.id : index) || item.itemid"
+          class="wb-item-wrap"
+        >
+          <div class="wb-item">
+            <weibo v-bind:item="item.mblog || item" />
+          </div>
+        </div>
+        <!-- <empty /> -->
       </div>
     </mv-loadmore>
   </div>
@@ -18,13 +35,22 @@
 import topBar from "@/components/TopBar.vue";
 import mvLoadmore from "@/components/MVLoadMore.vue";
 import empty from "@/components/Empty.vue";
+import weibo from "@/components/Weibo.vue";
 
 export default {
   name: "Home",
   components: {
     topBar,
     mvLoadmore,
-    empty
+    empty,
+    weibo
+  },
+  watch: {
+    cur_group: function(newValue, oldValue) {
+      if (!oldValue && !this.list_all.length) {
+        this.init_first_data();
+      }
+    }
   },
   data: function() {
     return {
@@ -110,7 +136,7 @@ export default {
                     const { max_id } = statuses;
                     this.max_id = max_id;
                     this.since_id = cardlistInfo ? cardlistInfo.since_id : "";
-                    
+
                     if (page) {
                       this.page = page;
                     } else if (cardlistInfo) {
@@ -151,6 +177,9 @@ export default {
       this.last_scrolltop = 0;
       this.clear_storage();
       this.init_first_data();
+    },
+    to_rem: function(pixels) {
+      return "".concat(Math.ceil(pixels), "px");
     }
   }
 };
