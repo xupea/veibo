@@ -174,8 +174,12 @@ export default {
       this.isShowAllTabGroup = false;
 
       if (this.isInThisTabGroup(this.curTab, tab.children)) {
+        if (tab.children.length > 1) {
+          this.isShowTabGroup = !this.isShowTabGroup;
+        }
         this.changeTab(tab.children[0]);
       } else {
+        this.isShowTabGroup = false;
         this.changeTab(tab.children[tab.curGroupIndex || 0]);
       }
     },
@@ -183,11 +187,27 @@ export default {
       const s =
         arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : 0;
 
-      this.setCurTab(tab);
+      if (2 !== tab.type) {
+        if (3 !== tab.type) {
+          if (tab.gid === this.curTab.gid) {
+            this.$emit("updateFeed");
+          } else {
+            this.setCurTab(tab);
+          }
 
-      if (e) e.curGroupIndex = s;
+          if (e) {
+            e.curGroupIndex = s;
+          }
 
-      this.$nextTick(() => this.$emit("changeGroup"));
+          this.$nextTick(() => this.$emit("changeGroup"));
+        } else {
+          window.location.url = this.url;
+        }
+      } else {
+        this.$router.push({
+          path: this.url
+        });
+      }
     },
     scrollToCurTab: function() {
       let idx = -1;

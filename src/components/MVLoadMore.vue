@@ -128,10 +128,7 @@ export default {
   methods: {
     loadStart: function() {
       this.requesting = true;
-      //   this.topMethod();
-      setTimeout(() => {
-        this.loadEnd();
-      }, 2000);
+      this.topMethod();
       this.dY = this.topDistance;
     },
     loadEnd: function() {

@@ -4,29 +4,51 @@
       v-on:update:curGroup="cur_group = $event"
       v-on:update:cur-group="cur_group = $event"
       v-on:changeGroup="switch_groups"
+      v-on:updateFeed="loadmoreHandle"
       v-bind:curGroup="cur_group"
     />
-    <mv-loadmore ref="loadmore" :top-method="pull_refresh">
-      <div
-        ref="cont"
-        class="pannelwrap"
-        v-bind:style="{
+    <template v-if="list_cur && list_cur.length > 0">
+      <mv-loadmore ref="loadmore" :top-method="pull_refresh">
+        <div
+          ref="cont"
+          class="pannelwrap"
+          v-bind:style="{
           paddingTop: to_rem(padding_top),
           paddingBottom: to_rem(padding_bottom)
         }"
-      >
-        <div
-          v-for="(item, index) in list_cur"
-          v-bind:key="item.id || (item.mblog ? item.mblog.id : index) || item.itemid"
-          class="wb-item-wrap"
         >
-          <div class="wb-item">
-            <weibo v-bind:item="item.mblog || item" />
+          <div
+            v-for="(item, index) in list_cur"
+            v-bind:key="item.id || (item.mblog ? item.mblog.id : index) || item.itemid"
+            class="wb-item-wrap"
+          >
+            <div class="wb-item">
+              <weibo v-bind:item="item.mblog || item" />
+            </div>
           </div>
+          <!-- <empty /> -->
         </div>
-        <!-- <empty /> -->
+      </mv-loadmore>
+      <!-- <friendships v-if="followerInfo"></friendships> -->
+    </template>
+
+    <template v-else>
+      <div>
+        <no-data v-if="net_error.flag" v-bind:msg="net_error"></no-data>
       </div>
-    </mv-loadmore>
+      <div>
+        <no-data v-if="!net_error.flag && no_data.flag" v-bind:msg="no_data"></no-data>
+      </div>
+      <div v-if="!net_error.flag && !no_data.flag">
+        <empty />
+        <empty />
+        <empty />
+        <empty />
+        <empty />
+      </div>
+    </template>
+
+    <router-view></router-view>
   </div>
 </template>
 
@@ -91,8 +113,10 @@ export default {
     };
   },
   methods: {
+    loadmoreHandle: function() {
+      this.$refs.loadmore && this.$refs.loadmore.loadStart();
+    },
     switch_groups: function() {
-      // console.log('tab changd', this.cur_group)
       this.is_refresh = false;
       this.no_data.flag = false;
       this.net_error.flag = false;
@@ -116,7 +140,6 @@ export default {
       if (this.cur_group) {
         const { api } = this.cur_group;
         const url = api.indexOf("?") > 0 ? api : "".concat(api, "?");
-
         if (!this.is_request) {
           this.is_request = true;
 
@@ -131,10 +154,12 @@ export default {
                   if (data.cards && data.cards[0].card_type === 22) {
                     this.no_data.flag = true;
                   } else {
-                    let { statuses } = data;
-                    const { cardlistInfo, page, trends } = data;
-                    const { max_id } = statuses;
+                    let statuses = data.statuses || data.cards;
+
+                    const { cardlistInfo, page, trends, max_id } = data;
+
                     this.max_id = max_id;
+
                     this.since_id = cardlistInfo ? cardlistInfo.since_id : "";
 
                     if (page) {
@@ -158,6 +183,11 @@ export default {
                 this.net_error.flag = true;
                 this.net_error.msg = res.data.msg || res.net_error.msg;
               }
+              this.$nextTick(() => {
+                this.is_request = false;
+                this.is_refresh = false;
+                this.$emit("mvLoadEnd");
+              });
             })
             .catch(() => {
               this.is_request = false;
@@ -175,12 +205,15 @@ export default {
       this.padding_top = 0;
       this.padding_bottom = 0;
       this.last_scrolltop = 0;
-      this.clear_storage();
+      // this.clear_storage();
       this.init_first_data();
     },
     to_rem: function(pixels) {
       return "".concat(Math.ceil(pixels), "px");
     }
+  },
+  destroyed: function() {
+    this.is_refresh = false;
   }
 };
 </script>
