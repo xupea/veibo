@@ -56,7 +56,7 @@
         </div>
 
         <div class="weibo-og" v-on:click="getBlogLink(item, $event)">
-          <div class="weibo-text">{{ item.text }}</div>
+          <div class="weibo-text" ahref v-html="item.text"></div>
           <weibo-media v-bind:item="item" v-bind:hidImg="hidImg"></weibo-media>
         </div>
       </div>
@@ -89,13 +89,14 @@
         </div>
       </div>
     </article>
-    <!-- <weiboRCL v-if="showOgRCL" v-bind:item="item" v-bind:showTriangle="showTriangle"></weiboRCL> -->
+    <weiboRCL v-if="showOgRCL" v-bind:item="item" v-bind:showTriangle="showTriangle"></weiboRCL>
   </div>
 </template>
 
 <script>
 import weiboIcon from "@/components/WeiboIcon.vue";
 import weiboMedia from "@/components/WeiboMedia.vue";
+import weiboRCL from "@/components/WeiboRCL.vue";
 
 export default {
   name: "weibo",
@@ -170,9 +171,14 @@ export default {
   },
   components: {
     weiboIcon,
-    weiboMedia
+    weiboMedia,
+    weiboRCL
   }
 };
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.card9 .f-footer-ctrl .lite-iconf {
+  cursor: pointer;
+}
+</style>

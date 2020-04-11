@@ -23,7 +23,12 @@
             class="wb-item-wrap"
           >
             <div class="wb-item">
-              <weibo v-bind:item="item.mblog || item" />
+              <weibo
+                v-bind:item="item.mblog || item"
+                v-bind:showTriangle="show_triangle"
+                v-bind:showOgRCL="true"
+                v-bind:showRpRCL="false"
+              />
             </div>
           </div>
           <!-- <empty /> -->
@@ -225,5 +230,11 @@ export default {
 
 .pannelwrap {
   height: 500px;
+}
+
+.f-weibo.card9.m-panel {
+  border-top-width: 0;
+  margin: 0;
+  border-bottom: 1px solid #e6e6e6;
 }
 </style>
