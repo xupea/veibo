@@ -221,12 +221,12 @@ export default {
     },
 
     get_item_H: function(direction, N) {
-      const n = N || len;
       let hei = 0;
 
       if (this.$refs.cont) {
         const items = this.$refs.cont.children;
         const len = items.length;
+        const n = N || len;
 
         if (direction === "start") {
           for (let i = 0; i < n; i++) {
@@ -257,6 +257,7 @@ export default {
           if (scrollDis > 0 && curScrollTop - this.last_scrolltop > 0) {
             // 向下滚动
             if (Math.abs(scrollDis) >= this.get_item_H("start", 1)) {
+              //TODO
             }
           }
         }
