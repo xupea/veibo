@@ -52,11 +52,11 @@
     </div>
 
     <div v-else-if="item.page_info" class="weibo-media f-media">
-      <!-- <small-page
+      <small-page
         v-bind:item="item.page_info"
         v-bind:hidImg="hidImg"
         v-bind:vipType="item.mblog_vip_type"
-      ></small-page>-->
+      ></small-page>
     </div>
 
     <div class="weibo-media f-media">
@@ -65,8 +65,12 @@
   </div>
 </template>
 <script>
+import smallPage from "@/components/SmallPage.vue";
 export default {
   props: ["item", "hidImg"],
+  components: {
+    smallPage
+  },
   computed: {
     videoSrc: function() {
       return "";
@@ -94,7 +98,6 @@ export default {
       };
     }
   },
-  components: {},
   methods: {
     isLongImg: function(t) {
       var e = t.geo.width,
