@@ -1,72 +1,96 @@
+import throttle from "lodash/throttle";
+
 const config = {
-    distance: .618 * window.innerHeight,
-    gapTime: 300,
-    visibleHeight: 0,
-    firstCheck: false,
-    funcExpression: "",
-    scrollTarget: null,
-    scrollListener: null,
-    disabled: false
-}
+  distance: 0.618 * window.innerHeight,
+  gapTime: 300,
+  visibleHeight: 0,
+  firstCheck: false,
+  funcExpression: "",
+  scrollTarget: null,
+  scrollListener: null,
+  disabled: false
+};
 
 const { getComputedStyle } = document.defaultView;
 
-const getScrollEventTarget = (element) => {
+const getScrollEventTarget = element => {
+  let currentNode = element;
 
-    let currentNode = element;
-
-    while(currentNode && currentNode.tagName !== "HTML" && currentNode.tagName !== "BODY" && currentNode.nodeType === 1) {
-        const overflowY = getComputedStyle(currentNode).overflowY;
-        if(overflowY === "scroll" || overflowY === "auto") {
-            return currentNode;
-        }
-
-        currentNode = currentNode.parentNode;
+  while (
+    currentNode &&
+    currentNode.tagName !== "HTML" &&
+    currentNode.tagName !== "BODY" &&
+    currentNode.nodeType === 1
+  ) {
+    const overflowY = getComputedStyle(currentNode).overflowY;
+    if (overflowY === "scroll" || overflowY === "auto") {
+      return currentNode;
     }
 
-    return window;
-}
+    currentNode = currentNode.parentNode;
+  }
 
-const getVisibleHeight = (element) => {
-    if (element === window) {
-        return document.documentElement.clientHeight
-    }
+  return window;
+};
 
-    return element.clientHeight;
-}
+const getVisibleHeight = element => {
+  if (element === window) {
+    return document.documentElement.clientHeight;
+  }
+
+  return element.clientHeight;
+};
+
+const scroll = element => {
+  const curDistance =
+    element.el.getBoundingClientRect().bottom - config.visibleHeight;
+  if (curDistance < config.distance && !config.disabled) {
+    element.vm[element.epr].call();
+  }
+};
 
 export default {
-    name: "inf-scroll",
-    bind(el, binding, vnode) {
-        const vm = vnode.context;
-        const expression = binding.expression;
-        
-        config.gapTime = e.getAttribute("gap-time") || r.gapTime;
-        config.distance = e.getAttribute("distance") || r.distance;
-        config.disabled = e.getAttribute("disabled") || r.disabled;
-        config.firstCheck = e.getAttribute("first-check") || r.firstCheck;
+  name: "inf-scroll",
+  bind(el, binding, vnode) {
+    const vm = vnode.context;
+    const epr = binding.expression;
 
-        if(!expression)
-            throw new Error("滚到底后要做什么呢？");
+    const element = {
+      el,
+      vm,
+      epr
+    };
 
-        if (!{}.hasOwnProperty.call(i.vm, i.epr))
-            throw new Error("找不到所指定的method");
+    config.gapTime = el.getAttribute("gap-time") || config.gapTime;
+    config.distance = el.getAttribute("distance") || config.distance;
+    config.disabled = el.getAttribute("disabled") || config.disabled;
+    config.firstCheck = el.getAttribute("first-check") || config.firstCheck;
 
-        e.getAttribute("first-check") || i.vm[i.epr].call();
+    if (!epr) throw new Error("滚到底后要做什么呢？");
 
-        const mountedHandler = () => {
-            vm.$nextTick(() => {
+    if (!{}.hasOwnProperty.call(vm, epr))
+      throw new Error("找不到所指定的method");
 
-                config.scrollTarget = ;
-                config.scrollListener
-            })
-        }
+    if (el.getAttribute("first-check")) vm[epr].call();
 
-        vm.$on("hook:mounted", () => {});
-        vm.$on("hook:update", () => {})
-    },
+    let flag = false;
+    const mountedHandler = () => {
+      flag = true;
 
-    unbind() {
-        config.scrollTarget.removeEventListener("scroll", config.scrollListener)
-    }
-}
+      vm.$nextTick(() => {
+        config.scrollTarget = getScrollEventTarget(el);
+        config.visibleHeight =
+          getVisibleHeight(config.scrollTarget) || config.visibleHeight;
+        config.scrollListener = throttle(() => scroll(element), config.gapTime);
+        config.scrollTarget.addEventListener("scroll", config.scrollListener);
+      });
+    };
+
+    vm.$on("hook:mounted", () => mountedHandler());
+    vm.$on("hook:updated", () => flag || mountedHandler());
+  },
+
+  unbind() {
+    config.scrollTarget.removeEventListener("scroll", config.scrollListener);
+  }
+};
