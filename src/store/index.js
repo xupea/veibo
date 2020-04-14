@@ -5,29 +5,29 @@ Vue.use(Vuex);
 
 const hotword = {
   state: {
-    hotword: "",
+    hotword: ""
   },
   actions: {
     updateHotword: function({ commit }, data) {
       commit("UPDATE_HOTWORD", data);
-    },
+    }
   },
   mutations: {
     ["UPDATE_HOTWORD"](state, data) {
       state.hotword = data;
-    },
+    }
   },
   getters: {
     hotword: function(state) {
       return state.hotword;
-    },
-  },
+    }
+  }
 };
 
 export default new Vuex.Store({
   state: {
     curWeiboData: {},
-    curGroup: null,
+    curGroup: null
   },
   mutations: {
     ["SET_CUR_WB_DATA"](state, data) {
@@ -35,7 +35,7 @@ export default new Vuex.Store({
     },
     ["SET_CUR_GROUP"](state, data) {
       state.curGroup = data;
-    },
+    }
   },
   actions: {
     setCurWeiboData: function({ commit }, data) {
@@ -43,10 +43,10 @@ export default new Vuex.Store({
     },
     setCurGroup: function({ commit }, data) {
       commit("SET_CUR_GROUP", data);
-    },
+    }
   },
   modules: {
-    hotword,
+    hotword
   },
   getters: {
     curGroup: function(state) {
@@ -54,6 +54,6 @@ export default new Vuex.Store({
     },
     curWeiboData: function(state) {
       return state.curWeiboData;
-    },
-  },
+    }
+  }
 });

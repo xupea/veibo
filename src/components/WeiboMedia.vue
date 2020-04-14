@@ -6,7 +6,11 @@
       v-bind:class="'media-' + type"
     >
       <ul v-if="item.pics.length > 0" class="m-auto-list">
-        <li v-for="(pic, index) in item.pics" v-bind:key="index" v-bind:class="'m-auto-box' + cols">
+        <li
+          v-for="(pic, index) in item.pics"
+          v-bind:key="index"
+          v-bind:class="'m-auto-box' + cols"
+        >
           <div class="m-img-box m-imghold-4-3">
             <span class="feed-mark live-mark" v-if="videoSrc">
               <i class="lite-iconf lite-iconf-live"></i>
@@ -14,7 +18,8 @@
             <span
               class="feed-mark"
               v-else-if="isLongImg(pic) || isAniImg(pic.url)"
-            >{{ isAniImg(pic.url) ? "动图" : "长图" }}</span>
+              >{{ isAniImg(pic.url) ? "动图" : "长图" }}</span
+            >
 
             <img
               v-if="hidImg"
@@ -31,11 +36,15 @@
 
             <span
               class="pay-icon"
-              v-if="item.mblog_vip_type > 0 &&
-                          ((index > 0 && payType() > 0) ||
-                            (1 == item.pics.length && payType() > 0))"
+              v-if="
+                item.mblog_vip_type > 0 &&
+                  ((index > 0 && payType() > 0) ||
+                    (1 == item.pics.length && payType() > 0))
+              "
             >
-              <img src="https://h5.sinaimg.cn/upload/1087/691/2018/05/04/timeline_card_v.png" />
+              <img
+                src="https://h5.sinaimg.cn/upload/1087/691/2018/05/04/timeline_card_v.png"
+              />
             </span>
           </div>
         </li>
@@ -60,7 +69,7 @@ export default {
   props: ["item", "hidImg"],
   computed: {
     videoSrc: function() {
-      return ""
+      return "";
     },
     type: function() {
       return "b";

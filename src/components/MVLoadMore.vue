@@ -1,6 +1,6 @@
 <template>
   <div
-    v-bind:style="{transform: translate, transitionDuration: transition}"
+    v-bind:style="{ transform: translate, transitionDuration: transition }"
     @mousedown="startDrag"
     @touchstart="startDrag"
     @mousemove.stop="onDrag"
@@ -16,7 +16,7 @@
         <i
           v-else
           class="m-font m-font-down m-font-down-ani"
-          v-bind:class="{up: dragging && dY > topDistance}"
+          v-bind:class="{ up: dragging && dY > topDistance }"
         ></i>
       </template>
       <span class="main-link" v-if="showText">{{ status }}</span>
@@ -170,5 +170,4 @@ export default {
 };
 </script>
 
-<style lang="less">
-</style>
+<style lang="less"></style>

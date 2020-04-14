@@ -9,22 +9,22 @@ const routes = [
   {
     path: "/",
     name: "feed",
-    component: Home,
+    component: Home
   },
   {
     path: "/search",
     name: "searchall",
     component: Search,
     meta: {
-      page_type: "searchall",
-    },
-  },
+      page_type: "searchall"
+    }
+  }
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes,
+  routes
 });
 
 export default router;

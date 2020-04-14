@@ -1,6 +1,6 @@
 <template>
   <div class="wb-item-wrap">
-    <div class="wb-item" v-for="item in [1,2,3,4,5]" :key="item">
+    <div class="wb-item" v-for="item in [1, 2, 3, 4, 5]" :key="item">
       <div class="card m-panel card9 f-weibo">
         <div class="card-wrap">
           <header class="weibo-top m-box">
@@ -10,7 +10,9 @@
             <div class="m-box-dir m-box-col">
               <div class="m-text-box">
                 <h4 class="m-text-cut f-r"></h4>
-                <h3 class="m-text-cut empty-bg width-min inline-block anim-load"></h3>
+                <h3
+                  class="m-text-cut empty-bg width-min inline-block anim-load"
+                ></h3>
               </div>
             </div>
           </header>

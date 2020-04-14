@@ -1,6 +1,10 @@
 <template>
   <footer class="f-footer-ctrl">
-    <div v-if="showRt" class="m-diy-btn m-box-center-a" v-on:click.stop.prevent="repost">
+    <div
+      v-if="showRt"
+      class="m-diy-btn m-box-center-a"
+      v-on:click.stop.prevent="repost"
+    >
       <i class="lite-iconf lite-iconf-report"></i>
       <h4>{{ 0 === item.reposts_count ? "转发" : item.reposts_count }}</h4>
     </div>
@@ -9,7 +13,9 @@
       <h4>{{ 0 === item.comments_count ? "评论" : item.comments_count }}</h4>
     </div>
     <div class="m-diy-btn m-box-center-a" v-on:click.stop.prevent="like">
-      <i v-bind:class="{'lite-iconf-liked': liked, 'lite-iconf-like': !liked}"></i>
+      <i
+        v-bind:class="{ 'lite-iconf-liked': liked, 'lite-iconf-like': !liked }"
+      ></i>
       <h4>{{ 0 === like_counts ? "赞" : like_counts }}</h4>
     </div>
     <aside v-if="showTriangle" v-on:click="gomore">

@@ -13,13 +13,15 @@
           ref="cont"
           class="pannelwrap"
           v-bind:style="{
-          paddingTop: to_rem(padding_top),
-          paddingBottom: to_rem(padding_bottom)
-        }"
+            paddingTop: to_rem(padding_top),
+            paddingBottom: to_rem(padding_bottom)
+          }"
         >
           <div
             v-for="(item, index) in list_cur"
-            v-bind:key="item.id || (item.mblog ? item.mblog.id : index) || item.itemid"
+            v-bind:key="
+              item.id || (item.mblog ? item.mblog.id : index) || item.itemid
+            "
             class="wb-item-wrap"
           >
             <div class="wb-item">
@@ -213,8 +215,52 @@ export default {
       // this.clear_storage();
       this.init_first_data();
     },
+
     to_rem: function(pixels) {
       return "".concat(Math.ceil(pixels), "px");
+    },
+
+    get_item_H: function(direction, N) {
+      const n = N || len;
+      let hei = 0;
+
+      if (this.$refs.cont) {
+        const items = this.$refs.cont.children;
+        const len = items.length;
+
+        if (direction === "start") {
+          for (let i = 0; i < n; i++) {
+            hei += items[i].offsetHeight;
+          }
+        } else {
+          for (let i = len - 1; i >= len - n; i--) {
+            hei += items[i].offsetHeight;
+          }
+        }
+      }
+
+      return hei;
+    },
+
+    scrolling: function() {
+      const scrollingElement = document.scrollingElement || document.body;
+      const curScrollTop = scrollingElement.scrollTop;
+
+      setTimeout(() => {
+        this.is_scrolling = false;
+        if (
+          this.$refs.cont &&
+          !(this.padding_top === 0 && curScrollTop < this.first_scroll)
+        ) {
+          const scrollDis =
+            curScrollTop - this.first_scroll - this.last_scrolltop;
+          if (scrollDis > 0 && curScrollTop - this.last_scrolltop > 0) {
+            // 向下滚动
+            if (Math.abs(scrollDis) >= this.get_item_H("start", 1)) {
+            }
+          }
+        }
+      }, 300);
     }
   },
   destroyed: function() {

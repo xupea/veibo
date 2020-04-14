@@ -20,17 +20,18 @@ export default {
         }
 
         if (binding.value.toLogin) {
+          console.log("todo");
         } else if (binding.value.callback) {
           binding.value.callback.call();
         } else if (e.getAttribute("callback")) {
           const callback = e.getAttribute("callback").replace(/\(\)/g, "");
           vnode.context[callback].call();
-        } else if(binding.value.scheme) {
-
+        } else if (binding.value.scheme) {
+          console.log("todo");
         }
       }
     }
 
     el.addEventListener("click", callback);
-  },
+  }
 };

@@ -2,7 +2,10 @@
   <div class="lite-topbar main-top">
     <div class="nav-top">
       <div class="nav-left unlogin-logo"></div>
-      <search-bar class="nav-search" v-bind:class="{'unlogin-search': true}" />
+      <search-bar
+        class="nav-search"
+        v-bind:class="{ 'unlogin-search': true }"
+      />
       <div class="nav-right" v-on:click="goMsg">
         <div class="lite-iconf lite-iconf-releas"></div>
       </div>
@@ -15,13 +18,13 @@
               <ul class="nav_item" ref="navtab">
                 <li
                   class="item_li"
-                  v-for="(tab,index) in tabs"
-                  v-bind:class="{cur: isInThisTabGroup(curTab, tab.children)}"
+                  v-for="(tab, index) in tabs"
+                  v-bind:class="{ cur: isInThisTabGroup(curTab, tab.children) }"
                   v-bind:key="tab.gid"
                   v-on:click="clickTabGroup(tab, index)"
                 >
                   <span>
-                    {{tab.children[tab.curGroupIndex || 0].name}}
+                    {{ tab.children[tab.curGroupIndex || 0].name }}
                     <em></em>
                   </span>
                 </li>
@@ -34,16 +37,26 @@
                 class="m-auto-box"
                 v-for="(tab, index) in tabs"
                 v-bind:key="index"
-                v-bind:class="{cur: curTab.gid === tab.children[tab.curGroupIndex || 0].gid}"
+                v-bind:class="{
+                  cur: curTab.gid === tab.children[tab.curGroupIndex || 0].gid
+                }"
                 v-on:click="clickTabGroup(tab, index)"
               >
-                <span class="m-text-cut">{{tab.children[tab.curGroupIndex || 0].name}}</span>
+                <span class="m-text-cut">{{
+                  tab.children[tab.curGroupIndex || 0].name
+                }}</span>
               </li>
             </ul>
           </div>
         </div>
-        <div class="nav-plus m-box-center m-box-center-a" v-on:click="showAllTabGroup">
-          <i class="m-font m-font-arrow-down" v-bind:class="{aniRotate: isShowAllTabGroup}"></i>
+        <div
+          class="nav-plus m-box-center m-box-center-a"
+          v-on:click="showAllTabGroup"
+        >
+          <i
+            class="m-font m-font-arrow-down"
+            v-bind:class="{ aniRotate: isShowAllTabGroup }"
+          ></i>
         </div>
       </div>
     </div>

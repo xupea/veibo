@@ -29,7 +29,7 @@ export default {
   props: ["item", "currentHotWord"],
   computed: {
     searchVaule: function() {
-      return this.item.cardlist_title;// || c.a.parse(this.item.containerid).q;
+      return this.item.cardlist_title; // || c.a.parse(this.item.containerid).q;
     },
     hotWords: function() {
       return this.currentHotWord

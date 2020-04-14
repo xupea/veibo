@@ -7,6 +7,8 @@ import store from "./store";
 
 import "@/assets/marvel/css/card/cards.css";
 import "@/assets/marvel/css/lib/base.css";
+import "./registerServiceWorker";
+import "./registerServiceWorker";
 
 axios.defaults.baseURL = "http://180.76.51.7";
 
@@ -16,5 +18,5 @@ Vue.prototype.$http = axios;
 new Vue({
   router,
   store,
-  render: (h) => h(App),
+  render: h => h(App)
 }).$mount("#app");

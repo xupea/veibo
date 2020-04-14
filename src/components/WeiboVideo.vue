@@ -3,17 +3,17 @@
     <div
       class="mwb-video mwbv-layer"
       v-bind:class="{
-            huawei: huaWei,
-            safari: safariStyle,
-            qq: androidQQ,
-            'mwbv-play': showPlay,
-            'mwbv-control-pause': !showPlay,
-            'mwbv-control-play': showPlay,
-            'mwbv-control-mute': vMute,
-            'mwbv-control': !endPlay && dragPro,
-            'mwbv-replay': endPlay,
-            'mwbv-loading': loading
-        }"
+        huawei: huaWei,
+        safari: safariStyle,
+        qq: androidQQ,
+        'mwbv-play': showPlay,
+        'mwbv-control-pause': !showPlay,
+        'mwbv-control-play': showPlay,
+        'mwbv-control-mute': vMute,
+        'mwbv-control': !endPlay && dragPro,
+        'mwbv-replay': endPlay,
+        'mwbv-loading': loading
+      }"
     >
       <video
         v-if="iosQQ"
@@ -58,8 +58,14 @@
           <div class="mwbv-current-time">{{ vCTime }}</div>
           <div ref="outBar" class="mwbv-progress-control m-box-col">
             <div v-if="pc" ref="bar" class="progress-bar">
-              <div class="progress-bar-cache" v-bind:style="{width: 100 * vCacheW + '%'}"></div>
-              <div class="progress-bar-inner" v-bind:style="{width: 100 * vw + '%'}">
+              <div
+                class="progress-bar-cache"
+                v-bind:style="{ width: 100 * vCacheW + '%' }"
+              ></div>
+              <div
+                class="progress-bar-inner"
+                v-bind:style="{ width: 100 * vw + '%' }"
+              >
                 <span class="progress-handle"></span>
               </div>
             </div>
@@ -71,8 +77,14 @@
               v-on:touchmove="moveProgress"
               v-on:touchend.prevent="upProgress"
             >
-              <div class="progress-bar-cache" v-bind:style="{width: 100 * vCacheW + '%'}"></div>
-              <div class="progress-bar-inner" v-bind:style="{width: 100 * vw + '%'}">
+              <div
+                class="progress-bar-cache"
+                v-bind:style="{ width: 100 * vCacheW + '%' }"
+              ></div>
+              <div
+                class="progress-bar-inner"
+                v-bind:style="{ width: 100 * vw + '%' }"
+              >
                 <span class="progress-handle"></span>
               </div>
             </div>
@@ -80,7 +92,7 @@
           <div class="mwbv-remaining-time">{{ vDTime }}</div>
           <button
             class="mwbv-volume-control"
-            v-bind:class="{ios9Style: ios9Flag}"
+            v-bind:class="{ ios9Style: ios9Flag }"
             v-on:click="pushVolumn"
           >
             <span class="mwbv-icon"></span>
@@ -96,5 +108,4 @@
 export default {};
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

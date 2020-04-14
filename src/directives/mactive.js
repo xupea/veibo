@@ -18,7 +18,7 @@ export default {
           get: function() {
             passiveSupported = true;
             return passiveSupported;
-          },
+          }
         });
 
         window.addEventListener("test", null, options);
@@ -34,10 +34,10 @@ export default {
       "touchstart",
       add,
       isPassiveSupported && {
-        passive: true,
+        passive: true
       }
     );
 
     el.addEventListener("touchend", remove);
-  },
+  }
 };

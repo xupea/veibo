@@ -1,13 +1,15 @@
 <template>
   <a
-    v-on:click="$router.push({
-                            path: '/search?containerid=231583'
-                        })"
+    v-on:click="
+      $router.push({
+        path: '/search?containerid=231583'
+      })
+    "
   >
     <aside>
       <label class="m-search">
         <i class="m-font m-font-search"></i>
-        <div class="m-text-cut">{{this.getHotword}}</div>
+        <div class="m-text-cut">{{ this.getHotword }}</div>
       </label>
     </aside>
   </a>
