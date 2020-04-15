@@ -12,9 +12,9 @@
         <div
           ref="cont"
           class="pannelwrap"
-          v-bind:style="{
-            paddingTop: to_rem(padding_top),
-            paddingBottom: to_rem(padding_bottom)
+          :style="{
+            'padding-top': to_rem(padding_top),
+            'padding-bottom': to_rem(padding_bottom)
           }"
         >
           <div
@@ -33,10 +33,27 @@
               />
             </div>
           </div>
-          <!-- <empty /> -->
+        </div>
+        <div v-if="re_do" class="m-tips m-tips-tp cursor" @click="load_more(nextPageApi)"></div>
+        <mv-nextpage :requesting="is_request"></mv-nextpage>
+        <div class="temporary" ref="hei">
+          <div
+            v-for="(item, index) in diff_items"
+            :key="item.id || (item.mblog ? item.mblog.id : index)"
+            class="wb-item-wrap"
+          >
+            <div class="wb-item">
+              <weibo
+                v-bind:item="item.mblog || item"
+                v-bind:showTriangle="show_triangle"
+                v-bind:showOgRCL="true"
+                v-bind:showRpRCL="false"
+              />
+            </div>
+          </div>
         </div>
       </mv-loadmore>
-      <!-- <friendships v-if="followerInfo"></friendships> -->
+      <friendships v-if="followerInfo"></friendships>
     </template>
 
     <template v-else>
@@ -60,9 +77,11 @@
 </template>
 
 <script>
-// @ is an alias to /src
+import { mapGetters } from "vuex";
 import topBar from "@/components/TopBar.vue";
 import mvLoadmore from "@/components/MVLoadMore.vue";
+import mvNextpage from "@/components/NextPage.vue";
+import friendships from "@/components/FriendShips.vue";
 import empty from "@/components/Empty.vue";
 import weibo from "@/components/Weibo.vue";
 
@@ -71,10 +90,15 @@ export default {
   components: {
     topBar,
     mvLoadmore,
+    mvNextpage,
     empty,
-    weibo
+    weibo,
+    friendships
   },
   watch: {
+    list_all: function() {
+      if (this.is_loading) this.scrolling();
+    },
     cur_group: function(newValue, oldValue) {
       if (!oldValue && !this.list_all.length) {
         this.init_first_data();
@@ -184,12 +208,39 @@ export default {
                     }
 
                     this.list_cur = statuses;
+
+                    this.$nextTick(() => {
+                      const children = this.$refs.cont.children;
+
+                      for (let i = 0; i < children.length; i++) {
+                        const hei = children[i].offsetHeight;
+                        const fid = this.feed_id++;
+                        Object.assign(statuses[i], { hei, feed_id: fid });
+                      }
+
+                      this.list_all = statuses;
+
+                      const clientHeight =
+                        document.documentElement.clientHeight ||
+                        window.innerHeight;
+                      const curDataLen = this.list_cur.length;
+
+                      this.since = this.list_cur[0].feed_id;
+                      this.max = this.list_cur[curDataLen - 1].feed_id;
+                      this.first_scroll =
+                        0.5 * this.$refs.cont.offsetHeight - clientHeight / 2;
+
+                      window.onscroll = this.scrolling;
+                    });
+
+                    this.no_data.flag = false;
                   }
                 }
               } else {
                 this.net_error.flag = true;
                 this.net_error.msg = res.data.msg || res.net_error.msg;
               }
+
               this.$nextTick(() => {
                 this.is_request = false;
                 this.is_refresh = false;
@@ -214,6 +265,86 @@ export default {
       this.last_scrolltop = 0;
       // this.clear_storage();
       this.init_first_data();
+    },
+
+    load_more: function(api, showToast) {
+      if (!this.is_request) {
+        this.is_request = true;
+        this.re_do = false;
+
+        this.$http
+          .get(api, { timeout: 1000 * 30 })
+          .then(res => {
+            if (!res.data || !res.data.ok)
+              throw new Error({ msg: res.data.msg });
+            // if ("all" === a.cur_group.gid) this.freezeUnreadKey("status");
+            const { data } = res.data;
+            data.statuses = data.statuses || data.cards;
+
+            if (data.statuses.length > 0) {
+              if (data.cards && 22 === data.cards[0].card_type) {
+                this.is_request = false;
+                // this.$emit("mvLoadEnd");
+              } else {
+                this.max_id = data.max_id;
+                this.since_id = data.cardlistInfo
+                  ? data.cardlistInfo.since_id
+                  : "";
+
+                if (data.page) {
+                  this.page = data.page;
+                } else {
+                  if (data.cardlistInfo) this.page = data.cardlistInfo.page;
+                }
+
+                // this.change_data(value);
+                this.save_height(data);
+              }
+            }
+          })
+          .catch(error => {
+            showToast &&
+              this.$emit("mvToast", {
+                type: "error",
+                text: error.msg || "网络异常，请稍后再试~"
+              });
+
+            this.is_request = false;
+            this.re_do = true;
+          });
+      }
+    },
+
+    save_height: function(data, direction) {
+      let statuses = data.statuses || data.cards;
+      const len = statuses.length;
+
+      this.diff_items = statuses;
+
+      this.$nextTick(() => {
+        if (this.$refs.hei.children.length === len) {
+          const children = this.$refs.hei.children;
+          for (let i = 0; i < len; i++) {
+            const hei = children[i].offsetHeight;
+            const fid = this.feed_id++;
+            Object.assign(statuses[i], { hei, feed_id: fid });
+          }
+
+          this.set_list_all(data, direction);
+          this.diff_items = [];
+        }
+      });
+    },
+
+    set_list_all: function(value, type) {
+      this.is_request = false;
+
+      const { statuses } = value;
+
+      this.list_all =
+        "start" === type
+          ? statuses.concat(this.list_all)
+          : this.list_all.concat(statuses);
     },
 
     to_rem: function(pixels) {
@@ -242,12 +373,191 @@ export default {
       return hei;
     },
 
+    get_wb_hei: function(items) {
+      let hei = 0;
+      for (let i = 0; i < items.length; i++) {
+        hei += items[i].hei;
+      }
+      return hei;
+    },
+
+    get_scroll_items: function(scrollDis, cursor) {
+      let i;
+      let j;
+      const len = this.list_all.length;
+      let idx = "";
+      let arr_all_top = [];
+      let arr_all_bottom = [];
+      let arr = [];
+      let diffArr = [];
+      let n_top = 0;
+      let n_bottom = 0;
+      let dis_top = 0;
+      let dis_bottom = 0;
+      // 找到检索的起始位置
+      for (i = 0; i < len; i++) {
+        if (
+          (cursor === "since" && this.since === this.list_all[i].feed_id) ||
+          (cursor === "max" && this.max === this.list_all[i].feed_id)
+        ) {
+          idx = i;
+          break;
+        }
+      }
+      /* if (len - idx <= 10) {
+         // 坐标位置往后仅仅剩下不足20条数据,则继续储备数据{
+         this.load_more(this.feed_url + '&max_id=' + this.max_id);
+         }*/
+      // 检测scrollDis的距离是从since开始的多少条微博的高度
+      if (cursor === "max") {
+        const idx_since = idx + 1 - this.list_cur.length;
+        for (i = idx_since; i < len; i++) {
+          if (dis_top + this.list_all[i].hei <= scrollDis) {
+            // list_cur顶部第一条开始计算,总共滚动了n_top条微博高度;
+            // 向下滚时上面需要减掉的微博条数
+            dis_top += this.list_all[i].hei;
+            n_top++;
+          } else {
+            break;
+          }
+        }
+        for (j = idx + 1; j < len; j++) {
+          if (dis_bottom + this.list_all[j].hei <= scrollDis) {
+            // 从max后面的一条开始计算,总共滚动了n_bottom条微博高度;
+            // 向下滚时下面需要增加的微博条数
+            dis_bottom += this.list_all[j].hei;
+            n_bottom++;
+          } else {
+            /* if (dis_bottom + this.list_all[j].hei !== scrollDis) {
+               n_bottom++;
+               }*/
+            break;
+          }
+        }
+        // 循环结束了,dis_bottom + this.list_all[j].hei 仍然小于scrollDis,说明list_all里的微博不够 return ''
+        if (
+          this.list_all[j] &&
+          dis_bottom + this.list_all[j].hei >= scrollDis &&
+          this.list_all[idx + 1 + n_bottom]
+        ) {
+          // 避免直接拖动滚动条,滚动高度过高,直接截取倒数this.count条
+          // arr 下面需要增加的微博列表
+          // difArr 上面需要减掉的微博列表(用来计算上面paddingtop撑起高度)
+          arr_all_bottom = this.list_all.slice(idx + 1, idx + 1 + n_bottom);
+          arr = this.list_all.slice(
+            n_bottom > this.count ? idx + 1 + n_bottom - this.count : idx + 1,
+            idx + 1 + n_bottom
+          );
+          arr_all_top = this.list_all.slice(idx_since, idx_since + n_top);
+          diffArr =
+            n_top > this.list_cur.length
+              ? this.list_cur
+              : this.list_all.slice(idx_since, idx_since + n_top);
+          /* scrollWbHei = this.get_wb_hei(arr);
+             padTop = dis - scrollWbHei;*/
+          return {
+            /* n_top: n_top,
+               n_bottom: n_bottom,
+               dis_top: dis_top,
+               dis_bottom: dis_bottom,*/
+            add_wb_list: arr,
+            wb_list_top: arr_all_top,
+            wb_list_bottom: arr_all_bottom,
+            diff_wb_list: diffArr
+          };
+        }
+      }
+      // 检查scrollDis的距离是从max往前的多少条微博的高度
+      if (cursor === "since" && this.list_all[idx - 1]) {
+        const idx_max = idx - 1 + this.list_cur.length;
+        for (i = idx_max; i >= 0; i--) {
+          if (dis_bottom + this.list_all[i].hei <= scrollDis) {
+            // 从max那条开始算,总共滚动了n_bottom条微博高度;
+            // 向上滚时下面需要减掉的微博条数
+            dis_bottom += this.list_all[i].hei;
+            n_bottom++;
+          } else {
+            break;
+          }
+        }
+        for (j = idx - 1; j >= 0; j--) {
+          if (dis_top + this.list_all[j].hei <= scrollDis) {
+            // 从since的前一条开始算,总共滚动了n_top条微博高度;
+            // 向上滚时下面需要减掉的微博条数
+            dis_top += this.list_all[j].hei;
+            n_top++;
+          } else {
+            /* if (dis_top + this.list_all[j].hei !== scrollDis) {
+               n_top++;
+               }*/
+            break;
+          }
+        }
+        // if (this.list_all[j] && dis_top + this.list_all[j].hei >= scrollDis) {
+        // 避免直接拖动滚动条,滚动高度过高,直接截取this.count条
+        // arr 上面需要增加的微博列表
+        // diffArr 下面需要减掉的微博列表(计算下面paddingbottom需要撑起高度)
+        const start = Math.max(idx - n_top, 0);
+        arr_all_top = this.list_all.slice(start, idx);
+        arr_all_bottom = this.list_all.slice(
+          Math.max(idx_max + 1 - n_bottom, 0),
+          idx_max + 1
+        );
+        if (idx - n_top <= 0) {
+          arr = this.list_all.slice(0, this.count);
+          diffArr = this.list_cur;
+        } else {
+          arr = this.list_all.slice(
+            start,
+            n_top > this.count ? start + this.count : idx
+          );
+          diffArr =
+            n_bottom > this.list_cur.length
+              ? this.list_cur
+              : this.list_all.slice(
+                  Math.max(idx_max + 1 - n_bottom, 0),
+                  idx_max + 1
+                );
+        }
+        return {
+          /* n_top: n_top,
+             n_bottom: n_bottom,
+             dis_top: dis_top,
+             dis_bottom: dis_bottom,*/
+          add_wb_list: arr,
+          wb_list_top: arr_all_top,
+          wb_list_bottom: arr_all_bottom,
+          diff_wb_list: diffArr
+        };
+        // }
+      }
+      return "";
+    },
+
     scrolling: function() {
       const scrollingElement = document.scrollingElement || document.body;
       const curScrollTop = scrollingElement.scrollTop;
 
+      if (!this.is_refresh && curScrollTop > 0) {
+        if (curScrollTop >= this.lastHeight) {
+          this.is_upglide = true;
+        } else this.is_upglide = false;
+      }
+
+      this.lastHeight = curScrollTop;
+
+      if (this.is_scrolling) {
+        return;
+      }
+
+      this.is_scrolling = true;
+
       setTimeout(() => {
         this.is_scrolling = false;
+        // if (this.padding_top === 0 && curScrollTop < this.first_scroll) {
+        //   return
+        // }
+
         if (
           this.$refs.cont &&
           !(this.padding_top === 0 && curScrollTop < this.first_scroll)
@@ -257,7 +567,43 @@ export default {
           if (scrollDis > 0 && curScrollTop - this.last_scrolltop > 0) {
             // 向下滚动
             if (Math.abs(scrollDis) >= this.get_item_H("start", 1)) {
-              //TODO
+              const scrollInfo = this.get_scroll_items(scrollDis, "max");
+
+              if (typeof scrollInfo === "object") {
+                if (
+                  scrollInfo.wb_list_top.length > 0 &&
+                  scrollInfo.wb_list_bottom.length > 0
+                ) {
+                  this.padding_top += this.get_wb_hei(scrollInfo.wb_list_top);
+
+                  if (
+                    this.padding_bottom >
+                    this.get_wb_hei(scrollInfo.wb_list_bottom)
+                  ) {
+                    this.padding_bottom -= this.get_wb_hei(
+                      scrollInfo.wb_list_bottom
+                    );
+                  } else {
+                    this.padding_bottom = 0;
+                  }
+
+                  const newlist = this.list_cur.slice(
+                    scrollInfo.diff_wb_list.length
+                  );
+                  this.list_cur = newlist.concat(scrollInfo.add_wb_list);
+                  this.max = this.list_cur[this.list_cur.length - 1].feed_id;
+                  // console.log('++++++++++' + self.max);
+                  this.since = this.list_cur[0].feed_id;
+                  // self.last_scrolltop += scrollInfo.dis;
+                  this.last_scrolltop += this.get_wb_hei(
+                    scrollInfo.wb_list_top
+                  );
+                  this.is_loading = false;
+                }
+              } else {
+                this.load_more(this.nextPageApi);
+                this.is_loading = true;
+              }
             }
           }
         }
@@ -266,6 +612,37 @@ export default {
   },
   destroyed: function() {
     this.is_refresh = false;
+  },
+  mounted: function() {
+    setTimeout(() => {
+      this.is_scrolling = false;
+      this.is_request = false;
+      this.is_loading = false;
+
+      // const scrollingElement = document.scrollingElement || document.body;
+      // scrollingElement.scrollTop =
+      window.onscroll = this.scrolling;
+    });
+  },
+  computed: {
+    ...mapGetters(["config", "mlogin", "followerInfo", "curWeiboData"]),
+    isRefreshRotate: function() {
+      return this.is_refresh && this.is_request;
+    },
+    nextPageApi: function() {
+      const url = new URL(window.location.origin + "/" + this.cur_group.api);
+
+      this.cur_group.typeId
+        ? url.searchParams.set(
+            this.cur_group.typeId,
+            this[this.cur_group.typeId]
+          )
+        : this.since_id
+        ? url.searchParams.set("since_id", this.since_id)
+        : this.page && url.searchParams.set("page", this.page);
+
+      return url.pathname + url.search;
+    }
   }
 };
 </script>
@@ -276,12 +653,17 @@ export default {
 }
 
 .pannelwrap {
-  height: 500px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .f-weibo.card9.m-panel {
   border-top-width: 0;
   margin: 0;
   border-bottom: 1px solid #e6e6e6;
+}
+
+.wb-item-wrap {
+  overflow: hidden;
 }
 </style>

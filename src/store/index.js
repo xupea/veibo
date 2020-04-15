@@ -1,6 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
+import config from "@/modules/config";
+import friendGroup from "@/modules/friendGroup";
+
 Vue.use(Vuex);
 
 const hotword = {
@@ -46,7 +49,9 @@ export default new Vuex.Store({
     }
   },
   modules: {
-    hotword
+    hotword,
+    config,
+    friendGroup
   },
   getters: {
     curGroup: function(state) {

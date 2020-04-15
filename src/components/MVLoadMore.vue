@@ -12,7 +12,20 @@
   >
     <div class="m-tips m-tips-tp">
       <template v-if="showArrow">
-        <div v-if="requesting" class="m-loading m-loading-dark"></div>
+        <div v-if="requesting" class="m-loading m-loading-dark">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         <i
           v-else
           class="m-font m-font-down m-font-down-ani"
