@@ -73,14 +73,19 @@
     </template>
 
     <router-view></router-view>
+    <!-- <transition name="fade">
+      <div v-if="mlogin" v-show="!t.is_upglide" class="refresh-btn lite-iconf" @click="handle_refresh"></div>
+      <loginSignin v-else v-show="!t.is_upglide"></loginSignin>
+    </transition> -->
+    <!-- <pop-video-new v-if="pageLoaded"></pop-video-new>
+    <appTips v-if="showAppTips"></appTips> -->
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import topBar from "@/components/TopBar.vue";
-import mvLoadmore from "@/components/MVLoadMore.vue";
-import mvNextpage from "@/components/NextPage.vue";
+
 import friendships from "@/components/FriendShips.vue";
 import empty from "@/components/Empty.vue";
 import weibo from "@/components/Weibo.vue";
@@ -88,11 +93,14 @@ import weibo from "@/components/Weibo.vue";
 export default {
   name: "Home",
   components: {
+    // card,
+    // loginSignin,
     topBar,
-    mvLoadmore,
-    mvNextpage,
     empty,
     weibo,
+    // popVideoNew,动态的
+    // noData,
+    // appTips,
     friendships
   },
   watch: {
@@ -320,6 +328,7 @@ export default {
       const len = statuses.length;
 
       this.diff_items = statuses;
+      console.log(this.diff_items)
 
       this.$nextTick(() => {
         if (this.$refs.hei.children.length === len) {
@@ -345,6 +354,8 @@ export default {
         "start" === type
           ? statuses.concat(this.list_all)
           : this.list_all.concat(statuses);
+
+          console.log(this.list_all)
     },
 
     to_rem: function(pixels) {
@@ -603,6 +614,32 @@ export default {
               } else {
                 this.load_more(this.nextPageApi);
                 this.is_loading = true;
+              }
+            }
+          } else if (scrollDis < 0 && curScrollTop - (this.last_scrolltop + this.first_scroll) < 0) {
+            if (Math.abs(scrollDis) >= this.get_item_H('end', 1)) {
+              const scrollUpInfo = this.get_scroll_items(Math.abs(scrollDis), 'since');
+
+              if (typeof scrollUpInfo === 'object') {
+                if (scrollUpInfo.wb_list_top.length > 0 && scrollUpInfo.wb_list_bottom.length > 0) {
+                  this.padding_bottom += this.get_wb_hei(scrollUpInfo.wb_list_bottom);
+
+                  if (this.padding_top > this.get_wb_hei(scrollUpInfo.wb_list_top)) {
+                    this.padding_top -= this.get_wb_hei(scrollUpInfo.wb_list_top);
+                  } else {
+                    this.padding_top = 0;
+                  }
+                  const len = this.list_cur.length;
+                  const newlist1 = this.list_cur.slice(0, len - scrollUpInfo.diff_wb_list.length);
+                  this.list_cur = scrollUpInfo.add_wb_list.concat(newlist1);
+                  this.max = this.list_cur[this.list_cur.length - 1].feed_id;
+                  this.since = this.list_cur[0].feed_id;
+                  if (curScrollTop === 0) {
+                    this.last_scrolltop = 0;
+                  } else {
+                    this.last_scrolltop -= this.get_wb_hei(scrollUpInfo.wb_list_top);
+                  }
+                }
               }
             }
           }

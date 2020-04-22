@@ -6,11 +6,11 @@
       v-on:click.stop.prevent="repost"
     >
       <i class="lite-iconf lite-iconf-report"></i>
-      <h4>{{ 0 === item.reposts_count ? "转发" : item.reposts_count }}</h4>
+      <h4>{{ 0 === item.reposts_count ? "转发" : item.reposts_count | numFormat }}</h4>
     </div>
     <div class="m-diy-btn m-box-center-a" v-on:click.stop.prevent="comment">
       <i class="lite-iconf lite-iconf-comments"></i>
-      <h4>{{ 0 === item.comments_count ? "评论" : item.comments_count }}</h4>
+      <h4>{{ 0 === item.comments_count ? "评论" : item.comments_coun | numFormat }}</h4>
     </div>
     <div class="m-diy-btn m-box-center-a" v-on:click.stop.prevent="like">
       <i

@@ -25,7 +25,7 @@
               </h3>
             </router-link>
             <h4 class="m-text-cut">
-              <span class="time">{{ item.created_at }}</span>
+              <span class="time">{{ item.created_at | fromNow }}</span>
               <span class="from" v-if="item.source">
                 {{ " 来自 " + item.source }}
               </span>
