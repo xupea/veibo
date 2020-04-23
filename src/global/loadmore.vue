@@ -92,11 +92,11 @@ export default {
     },
     showText: {
       type: Boolean,
-      default: !0
+      default: true
     },
     showArrow: {
       type: Boolean,
-      default: !0
+      default: true
     },
     topMethod: {
       type: Function

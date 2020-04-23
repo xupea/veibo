@@ -20,7 +20,7 @@
           <div
             v-for="(item, index) in list_cur"
             v-bind:key="
-              item.id || (item.mblog ? item.mblog.id : index) || item.itemid
+              item.id || (item.mblog ? item.mblog.id : index) + Math.random() || item.itemid
             "
             class="wb-item-wrap"
           >
@@ -76,9 +76,9 @@
     <!-- <transition name="fade">
       <div v-if="mlogin" v-show="!t.is_upglide" class="refresh-btn lite-iconf" @click="handle_refresh"></div>
       <loginSignin v-else v-show="!t.is_upglide"></loginSignin>
-    </transition> -->
+    </transition>-->
     <!-- <pop-video-new v-if="pageLoaded"></pop-video-new>
-    <appTips v-if="showAppTips"></appTips> -->
+    <appTips v-if="showAppTips"></appTips>-->
   </div>
 </template>
 
@@ -328,7 +328,6 @@ export default {
       const len = statuses.length;
 
       this.diff_items = statuses;
-      console.log(this.diff_items)
 
       this.$nextTick(() => {
         if (this.$refs.hei.children.length === len) {
@@ -354,8 +353,6 @@ export default {
         "start" === type
           ? statuses.concat(this.list_all)
           : this.list_all.concat(statuses);
-
-          console.log(this.list_all)
     },
 
     to_rem: function(pixels) {
@@ -363,6 +360,7 @@ export default {
     },
 
     get_item_H: function(direction, N) {
+      // 获取第一个/最后一个元素高度
       let hei = 0;
 
       if (this.$refs.cont) {
@@ -557,11 +555,9 @@ export default {
 
       this.lastHeight = curScrollTop;
 
-      if (this.is_scrolling) {
-        return;
+      if (!this.is_scrolling) {
+        this.is_scrolling = true;
       }
-
-      this.is_scrolling = true;
 
       setTimeout(() => {
         this.is_scrolling = false;
@@ -612,32 +608,55 @@ export default {
                   this.is_loading = false;
                 }
               } else {
+                console.log(scrollDis);
+                console.log(this.nextPageApi);
                 this.load_more(this.nextPageApi);
                 this.is_loading = true;
               }
             }
-          } else if (scrollDis < 0 && curScrollTop - (this.last_scrolltop + this.first_scroll) < 0) {
-            if (Math.abs(scrollDis) >= this.get_item_H('end', 1)) {
-              const scrollUpInfo = this.get_scroll_items(Math.abs(scrollDis), 'since');
+          } else if (
+            scrollDis < 0 &&
+            curScrollTop - (this.last_scrolltop + this.first_scroll) < 0
+          ) {
+            console.log(this.get_item_H("end", 1))
+            if (Math.abs(scrollDis) >= this.get_item_H("end", 1)) {
+              const scrollUpInfo = this.get_scroll_items(
+                Math.abs(scrollDis),
+                "since"
+              );
 
-              if (typeof scrollUpInfo === 'object') {
-                if (scrollUpInfo.wb_list_top.length > 0 && scrollUpInfo.wb_list_bottom.length > 0) {
-                  this.padding_bottom += this.get_wb_hei(scrollUpInfo.wb_list_bottom);
+              if (typeof scrollUpInfo === "object") {
+                if (
+                  scrollUpInfo.wb_list_top.length > 0 &&
+                  scrollUpInfo.wb_list_bottom.length > 0
+                ) {
+                  this.padding_bottom += this.get_wb_hei(
+                    scrollUpInfo.wb_list_bottom
+                  );
 
-                  if (this.padding_top > this.get_wb_hei(scrollUpInfo.wb_list_top)) {
-                    this.padding_top -= this.get_wb_hei(scrollUpInfo.wb_list_top);
+                  if (
+                    this.padding_top > this.get_wb_hei(scrollUpInfo.wb_list_top)
+                  ) {
+                    this.padding_top -= this.get_wb_hei(
+                      scrollUpInfo.wb_list_top
+                    );
                   } else {
                     this.padding_top = 0;
                   }
                   const len = this.list_cur.length;
-                  const newlist1 = this.list_cur.slice(0, len - scrollUpInfo.diff_wb_list.length);
+                  const newlist1 = this.list_cur.slice(
+                    0,
+                    len - scrollUpInfo.diff_wb_list.length
+                  );
                   this.list_cur = scrollUpInfo.add_wb_list.concat(newlist1);
                   this.max = this.list_cur[this.list_cur.length - 1].feed_id;
                   this.since = this.list_cur[0].feed_id;
                   if (curScrollTop === 0) {
                     this.last_scrolltop = 0;
                   } else {
-                    this.last_scrolltop -= this.get_wb_hei(scrollUpInfo.wb_list_top);
+                    this.last_scrolltop -= this.get_wb_hei(
+                      scrollUpInfo.wb_list_top
+                    );
                   }
                 }
               }

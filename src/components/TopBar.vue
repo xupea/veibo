@@ -2,10 +2,7 @@
   <div class="lite-topbar main-top">
     <div class="nav-top">
       <div class="nav-left unlogin-logo"></div>
-      <search-bar
-        class="nav-search"
-        v-bind:class="{ 'unlogin-search': true }"
-      />
+      <search-bar class="nav-search" v-bind:class="{ 'unlogin-search': true }" />
       <div class="nav-right" v-on:click="goMsg">
         <div class="lite-iconf lite-iconf-releas"></div>
       </div>
@@ -42,21 +39,17 @@
                 }"
                 v-on:click="clickTabGroup(tab, index)"
               >
-                <span class="m-text-cut">{{
+                <span class="m-text-cut">
+                  {{
                   tab.children[tab.curGroupIndex || 0].name
-                }}</span>
+                  }}
+                </span>
               </li>
             </ul>
           </div>
         </div>
-        <div
-          class="nav-plus m-box-center m-box-center-a"
-          v-on:click="showAllTabGroup"
-        >
-          <i
-            class="m-font m-font-arrow-down"
-            v-bind:class="{ aniRotate: isShowAllTabGroup }"
-          ></i>
+        <div class="nav-plus m-box-center m-box-center-a" v-on:click="showAllTabGroup">
+          <i class="m-font m-font-arrow-down" v-bind:class="{ aniRotate: isShowAllTabGroup }"></i>
         </div>
       </div>
     </div>
@@ -64,8 +57,9 @@
 </template>
 
 <script>
-import searchBar from "@/components/SearchBar.vue";
 import { mapActions } from "vuex";
+import searchBar from "@/components/SearchBar.vue";
+import goBack from "@/mixins/goBack";
 
 const tabsData = null;
 
@@ -89,6 +83,8 @@ function formatChannel(channel) {
 }
 
 export default {
+  mixins: [goBack],
+  name: 'topbar',
   components: {
     searchBar
   },
